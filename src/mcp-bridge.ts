@@ -26,6 +26,8 @@ export interface McpBridgeHooks {
 export interface McpBridge {
     connect(): void;
     disconnect(): void;
+    /** Reconnect with the server URL and token Penpot last handed over (start-server). */
+    reconnect(): void;
 }
 
 /**
@@ -311,5 +313,9 @@ export function startMcpBridge(hooks: McpBridgeHooks = {}): McpBridge {
     return {
         connect: () => connectToMcpServer(),
         disconnect: disconnectFromMcpServer,
+        reconnect: () => {
+            cancelReconnect();
+            connectToMcpServer(lastConnectionUrl, lastConnectionToken);
+        },
     };
 }
