@@ -3,7 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
- * Modified by Zahrex for the Zahrex AI plugin (see NOTICE.md).
+ * Modified by Zahrex for the Zahrex AI plugin (see NOTICE.md): when the panel is enabled the panel page,
+ * not the upstream MCP UI, is the single plugin UI and hosts the MCP bridge.
  */
 import { ExecuteCodeTaskHandler } from "./task-handlers/ExecuteCodeTaskHandler";
 import { Task, TaskHandler } from "./TaskHandler";
@@ -34,19 +35,23 @@ mcp?.setMcpStatus("connecting");
  */
 const taskHandlers: TaskHandler[] = [new ExecuteCodeTaskHandler()];
 
-// Open the plugin UI (main.ts)
-penpot.ui.open("Penpot MCP Plugin", `?theme=${penpot.theme}`, {
-    width: 236,
-    height: 210,
-    hidden: isIntegratedRemoteMcp,
-} as any);
-
-// Zahrex AI chat panel (our addition; everything else in this file is upstream). It never touches the
-// MCP task path above: tasks still arrive over the MCP UI's websocket and run through taskHandlers.
+// Open the plugin UI. Penpot allows ONE UI per plugin, so:
+//  - panel disabled: the upstream MCP UI (main.ts), exactly as upstream;
+//  - panel enabled: only the Zahrex AI panel, whose page also runs the MCP bridge (mcp-bridge.ts) and
+//    speaks the same ui-initialized / mcp-mode / start-server / task protocol handled below.
+// If the panel cannot open, fall back to the upstream UI so MCP never goes dark.
+let panelOpened = false;
 try {
-    openZahrexPanel();
+    panelOpened = openZahrexPanel();
 } catch (error) {
     console.error("Zahrex AI panel failed to open:", error);
+}
+if (!panelOpened) {
+    penpot.ui.open("Penpot MCP Plugin", `?theme=${penpot.theme}`, {
+        width: 236,
+        height: 210,
+        hidden: isIntegratedRemoteMcp,
+    } as any);
 }
 
 // Register message handlers

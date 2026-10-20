@@ -11,13 +11,15 @@ Each of these files carries a "Modified by Zahrex" header.
 
 | File | Change |
 |---|---|
-| `src/plugin.ts` | One import and one guarded call that opens the Zahrex AI panel. The MCP task path is unchanged. |
+| `src/plugin.ts` | Opens one plugin window. With the panel enabled, that window is the Zahrex AI panel, and it hosts the MCP bridge; otherwise it is the upstream MCP UI. The MCP task path is unchanged. |
+| `src/main.ts` | The upstream MCP UI, now driving the shared bridge in `src/mcp-bridge.ts` through hooks. |
+| `src/mcp-bridge.ts` (new, derived from upstream `main.ts`) | The MCP WebSocket bridge: connection, heartbeat, reconnect and task relay, shared by the upstream UI and the panel page. |
 | `src/task-handlers/ExecuteCodeTaskHandler.ts` | The import path of the shared types only. |
 | `vite.config.ts` | The live-preview dev server is removed, and build-time defines for the panel URL and toggle are added. |
 
 ## Unmodified (verbatim from 2.18.3)
 
-`src/main.ts`, `src/TaskHandler.ts`, `src/ErrorUtils.ts`, `src/PenpotUtils.ts`, `src/style.css`, `src/vite-env.d.ts`, `src/index.d.ts`, `index.html`, `tsconfig.json`, `public/manifest.json`, `public/icon.jpg`. The shared types under `src/common/` come from upstream `mcp/packages/common/src`.
+`src/TaskHandler.ts`, `src/ErrorUtils.ts`, `src/PenpotUtils.ts`, `src/style.css`, `src/vite-env.d.ts`, `src/index.d.ts`, `index.html`, `tsconfig.json`, `public/manifest.json`, `public/icon.jpg`. The shared types under `src/common/` come from upstream `mcp/packages/common/src`.
 
 ## Not part of this publication
 
